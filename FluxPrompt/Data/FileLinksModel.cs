@@ -23,6 +23,9 @@ namespace FluxPrompt.Data
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Scan user's Start Menu and load details into this model.
+        /// </summary>
         private void ScanShortcuts()
         {
             //TODO Improve launch times and avoid needing administrative permissions on every launch.
