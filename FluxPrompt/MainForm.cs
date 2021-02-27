@@ -1,19 +1,15 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Scripting;
+﻿using FluxPrompt.Data;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FluxPrompt
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
+        #region Interop for MovableControls_MouseDown
         private const int WM_NCLBUTTONDOWN = 0xA1;
         private const int HT_CAPTION = 0x2;
 
@@ -21,29 +17,38 @@ namespace FluxPrompt
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
         [DllImport("user32.dll")]
         public static extern bool ReleaseCapture();
+        #endregion
 
         HotKeyHandler hotkeyHandler;
+        FileLinksModel fileLinksModel;
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
 
+            TransparencyKey = (BackColor);
             ShowInTaskbar = false;
-            notifyIcon1.Icon = SystemIcons.Asterisk;
             TopMost = true;
 
-            TransparencyKey = (BackColor);
             notifyIcon1.Visible = true;
+            notifyIcon1.Icon = SystemIcons.Asterisk;
             notifyIcon1.Text = "Flux Prompt";
 
-            hotkeyHandler = new HotKeyHandler();
+            ResultDataGridView.ColumnCount = 1;
+            ResultDataGridView.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            ResultDataGridView.Columns[0].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            ResultDataGridView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            ResultDataGridView.RowHeadersVisible = false;
+            ResultDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
-            dataGridView1.Columns.Add(new DataGridViewColumn());
-            dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridView1.Columns[0].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-            dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            dataGridView1.RowHeadersVisible = false;
-            //dataGridView1.AllowUserToAddRows = false;
+            RegisterHotKeys();
+
+            fileLinksModel = new FileLinksModel();
+        }
+
+        private void RegisterHotKeys()
+        {
+            hotkeyHandler = new HotKeyHandler();
 
             hotkeyHandler.HotKeyPressed += new EventHandler<HotKeyPressedEventArgs>(HandleHotKeyPressed);
 
@@ -54,7 +59,7 @@ namespace FluxPrompt
 
         public void HandleHotKeyPressed(object sender, HotKeyPressedEventArgs e)
         {
-            //TODO switch for multiple hot key indexes here based on value of e.HotKeyIndex
+            //TODO Add a switch for multiple hot key indexes here based on value of e.HotKeyIndex
 
             WindowState = FormWindowState.Normal;
             TopMost = true;
@@ -64,8 +69,39 @@ namespace FluxPrompt
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
             //e.Modifiers
+            int selectedIndex;
+            
             switch (e.KeyCode)
             {
+                case Keys.Up:
+                    if (ResultDataGridView.SelectedRows.Count > 0)
+                    {
+                        selectedIndex = ResultDataGridView.SelectedRows[0].Index;
+                    }
+                    else
+                    {
+                        selectedIndex = 0;
+                    }
+
+                    if (selectedIndex > 0)
+                    {
+                        ResultDataGridView.ClearSelection();
+                        ResultDataGridView.Rows[selectedIndex - 1].Selected = true;
+                    }
+                    break;
+                case Keys.Down:
+                    if (ResultDataGridView.Rows.Count > 0)
+                    {
+                        selectedIndex = ResultDataGridView.SelectedRows[0].Index;
+
+                        if (selectedIndex < ResultDataGridView.Rows.Count - 1)
+                        {
+                            ResultDataGridView.ClearSelection();
+                            ResultDataGridView.Rows[selectedIndex + 1].Selected = true;
+                        }
+                    }
+                    //TODO select next result row.
+                    break;
                 case Keys.Enter:
                     string csScript = PromptTextBox.Text.ToString();
 
@@ -79,20 +115,14 @@ namespace FluxPrompt
                     {
                         result = ex.Message;
                     }
-
-                    dataGridView1.Rows.Insert(0, csScript + Environment.NewLine + Convert.ToString(result));
+                    
+                    ResultDataGridView.Rows.Insert(0, csScript + Environment.NewLine + Convert.ToString(result));
 
                     e.Handled = true;
 
                     break;
                 case Keys.Escape:
                     WindowState = FormWindowState.Minimized;
-                    break;
-                case Keys.Tab:
-                    // TODO autocomplete
-                    break;
-                default:
-                    //dataGridView1.Rows.Add(TextBox1.Text.ToString());
                     break;
             }
         }
@@ -122,7 +152,10 @@ namespace FluxPrompt
             notifyIcon1.Visible = false;
         }
 
-        private void TextBox1_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
+        /// <summary>
+        /// Allow user to click and drag on controls, moving the form as if they were clicking on the window's title bar.
+        /// </summary>
+        private void MovableControls_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
@@ -141,35 +174,19 @@ namespace FluxPrompt
             Opacity = 0.70;
         }
 
-        private void OnKeyPress(object sender, KeyPressEventArgs e)
-        {
-            //char what = e.KeyChar;
-
-            //switch (e.KeyChar)
-            //{
-            //    case '\r':
-            //        e.Handled = true;
-            //        break;
-            //}
-        }
-
         /// <summary>
         /// Handle certain key presses to prevent audible alerts and unwanted movement of cursor.
         /// </summary>
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            switch(e.KeyCode)
+            if (e.KeyCode == Keys.Up
+                || e.KeyCode == Keys.Down
+                || e.KeyCode == Keys.Tab
+                || e.KeyCode == Keys.Enter
+                || e.KeyCode == Keys.Escape)
             {
-                case Keys.Up:
-                case Keys.Down:
-                case Keys.Tab:
-                case Keys.Enter:
-                case Keys.Escape:
-                    e.Handled = true;
-                    e.SuppressKeyPress = true;
-                    break;
-                default:
-                    break;
+                e.Handled = true;
+                e.SuppressKeyPress = true;
             }
         }
     }
