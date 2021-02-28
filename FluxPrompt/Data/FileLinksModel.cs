@@ -29,6 +29,8 @@ namespace FluxPrompt.Data
             List<Tuple<int, FileLink>> rankedResults = new List<Tuple<int, FileLink>>();
             string keyPhrase = SearchPhrase.ToLower();
 
+            //TODO search LaunchHistories first
+
             foreach (FileLink link in FileLinks)
             {
                 int match = 0,

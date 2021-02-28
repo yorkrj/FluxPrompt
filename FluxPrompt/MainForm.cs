@@ -114,6 +114,8 @@ namespace FluxPrompt
                         ResultDataGridView.Rows.Clear();
                         WindowState = FormWindowState.Minimized;
 
+                        //TODO persist LaunchHistory
+
                         Process.Start(selectedLink.Path); //TODO Flesh this out to launch w/ paremeters and environment.
                     }
 
