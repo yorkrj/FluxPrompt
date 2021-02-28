@@ -19,7 +19,7 @@ Type Escape to minimize FluxPrompt to the notification tray. You may double clic
 - Improve error handling.
 - Currently requrires administrator access on every run since scanning the Start Menu requires elevated priviledges. Scanning shortcuts in a separate elevated proccess will aleviate this requirement.
 - Add ability to launch an application as administrator.
-- Create cusomizable settings
+- Create cusomizable settings.
   - Change hot keys
   - Configure directories to be scanned for shortcuts.
   - Configure directories to be scanned for executables.
