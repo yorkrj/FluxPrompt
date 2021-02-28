@@ -108,13 +108,14 @@ namespace FluxPrompt
                     if (ResultDataGridView.Rows.Count > 0)
                     {
                         int selectedRowIndex = ResultDataGridView.SelectedRows[0].Index;
-                        FileLink selectedLink = fileLinksModel.GetFileLink((Guid)ResultDataGridView.Rows[selectedRowIndex].Cells[1].Value);
+                        Guid selectedKey = (Guid)ResultDataGridView.Rows[selectedRowIndex].Cells[1].Value;
+                        FileLink selectedLink = fileLinksModel.GetFileLink(selectedKey);
+
+                        fileLinksModel.SetLaunchHistory(PromptTextBox.Text, selectedKey);
 
                         PromptTextBox.Clear();
                         ResultDataGridView.Rows.Clear();
                         WindowState = FormWindowState.Minimized;
-
-                        //TODO persist LaunchHistory
 
                         //TODO Error handling for Process.Start since shortcuts my contain bad paths.
                         Process.Start(selectedLink.Path); //TODO Flesh this out to launch w/ paremeters and environment.

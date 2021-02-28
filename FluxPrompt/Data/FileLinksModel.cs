@@ -14,11 +14,38 @@ namespace FluxPrompt.Data
         public FileLinksModel()
         {
             ScanShortcuts();
+            LaunchHistories = new List<LaunchHistory>(); // TODO persistance
         }
 
         public FileLink GetFileLink(Guid Key)
         {
             return FileLinks.FirstOrDefault(t => t.Key == Key);
+        }
+
+        public void SetLaunchHistory(string SearchPhrase, Guid Key)
+        {
+            string searchPhrase = SearchPhrase.Trim().ToLowerInvariant();
+
+            LaunchHistory foundHistory = LaunchHistories.FirstOrDefault(t => 
+                t.FileLink.Key == Key 
+                && t.SearchPhrase.Trim().ToLowerInvariant() == searchPhrase);
+
+            if (foundHistory == null)
+            {
+                LaunchHistory newHistory = new LaunchHistory
+                {
+                    SearchPhrase = searchPhrase,
+                    CountLaunches = 1,
+                    LastLaunched = DateTime.Now,
+                    FileLink = FileLinks.FirstOrDefault(t => t.Key == Key)
+                };
+                LaunchHistories.Add(newHistory);
+            }
+            else
+            {
+                foundHistory.CountLaunches++;
+                foundHistory.LastLaunched = DateTime.Now;
+            }
         }
 
         /// <summary>
@@ -27,37 +54,48 @@ namespace FluxPrompt.Data
         public List<FileLink> GetFileLinks(string SearchPhrase)
         {
             List<Tuple<int, FileLink>> rankedResults = new List<Tuple<int, FileLink>>();
-            string keyPhrase = SearchPhrase.ToLower();
+            string searchPhrase = SearchPhrase.Trim().ToLowerInvariant();
 
-            //TODO search LaunchHistories first
+           foreach (LaunchHistory link in LaunchHistories)
+            {
+                if (searchPhrase == link.SearchPhrase)
+                {
+                    rankedResults.Add(new Tuple<int, FileLink>(
+                        -link.CountLaunches,
+                        link.FileLink));
+                }
+            }
 
             foreach (FileLink link in FileLinks)
             {
-                int match = 0,
-                    newMatch = 0;
-
-                foreach (char item in keyPhrase)
+                if (!rankedResults.Any(t => t.Item2.Key == link.Key))
                 {
-                    newMatch = link.Name.ToLowerInvariant().IndexOf(item, match);
+                    int match = 0,
+                        newMatch = 0;
 
-                    if (newMatch >= match)
+                    foreach (char item in searchPhrase)
                     {
-                        match = newMatch;
+                        newMatch = link.Name.ToLowerInvariant().IndexOf(item, match);
+
+                        if (newMatch >= match)
+                        {
+                            match = newMatch;
+                        }
+                        else
+                        {
+                            newMatch = int.MaxValue;
+                            break;
+                        }
                     }
-                    else
+
+                    if (newMatch == match)
                     {
-                        newMatch = int.MaxValue;
-                        break;
+                        int firstMatch = link.Name.ToLowerInvariant().IndexOf(searchPhrase.First());
+
+                        rankedResults.Add(new Tuple<int, FileLink>(
+                            firstMatch + match,
+                            link));
                     }
-                }
-
-                if (newMatch == match)
-                {
-                    int firstMatch = link.Name.ToLowerInvariant().IndexOf(keyPhrase.First());
-
-                    rankedResults.Add(new Tuple<int, FileLink>(
-                        firstMatch + match,
-                        link));
                 }
             }
 
