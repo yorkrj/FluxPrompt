@@ -111,14 +111,17 @@ namespace FluxPrompt.Data
                     {
                         ShellLinkObject link = (ShellLinkObject)folderItem.GetLink;
 
-                        FileLinks.Add(new FileLink
+                        if (!string.IsNullOrWhiteSpace(link.Path))
                         {
-                            Key = Guid.NewGuid(),
-                            Name = folderItem.Name,
-                            Path = link.Path,
-                            WorkingDirectory = link.WorkingDirectory,
-                            Arguments = link.Arguments
-                        });
+                            FileLinks.Add(new FileLink
+                            {
+                                Key = Guid.NewGuid(),
+                                Name = folderItem.Name,
+                                Path = link.Path,
+                                WorkingDirectory = link.WorkingDirectory,
+                                Arguments = link.Arguments
+                            });
+                        }
                     }
                     catch
                     {

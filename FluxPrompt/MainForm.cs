@@ -116,6 +116,7 @@ namespace FluxPrompt
 
                         //TODO persist LaunchHistory
 
+                        //TODO Error handling for Process.Start since shortcuts my contain bad paths.
                         Process.Start(selectedLink.Path); //TODO Flesh this out to launch w/ paremeters and environment.
                     }
 
