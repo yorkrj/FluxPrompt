@@ -78,7 +78,7 @@ namespace FluxPrompt
 
     public class HotKeyPressedEventArgs: EventArgs
     {
-        private int hotKeyIndex;
+        private readonly int hotKeyIndex;
 
         public int HotKeyIndex 
         {

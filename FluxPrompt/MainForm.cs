@@ -1,7 +1,9 @@
 ﻿using FluxPrompt.Data;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -10,17 +12,19 @@ namespace FluxPrompt
     public partial class MainForm : Form
     {
         #region Interop for MovableControls_MouseDown
+
         private const int WM_NCLBUTTONDOWN = 0xA1;
         private const int HT_CAPTION = 0x2;
 
         [DllImport("user32.dll")]
-        public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
         [DllImport("user32.dll")]
-        public static extern bool ReleaseCapture();
+        private static extern bool ReleaseCapture();
+
         #endregion
 
-        HotKeyHandler hotkeyHandler;
-        FileLinksModel fileLinksModel;
+        private readonly HotKeyHandler hotkeyHandler;
+        private readonly FileLinksModel fileLinksModel;
 
         public MainForm()
         {
@@ -34,22 +38,22 @@ namespace FluxPrompt
             notifyIcon1.Icon = SystemIcons.Asterisk;
             notifyIcon1.Text = "Flux Prompt";
 
-            ResultDataGridView.ColumnCount = 1;
+            ResultDataGridView.ColumnCount = 2;
             ResultDataGridView.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             ResultDataGridView.Columns[0].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            ResultDataGridView.Columns[1].Visible = false; // Column 1 holds key values.
             ResultDataGridView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             ResultDataGridView.RowHeadersVisible = false;
             ResultDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
-            RegisterHotKeys();
-
+            hotkeyHandler = new HotKeyHandler();
             fileLinksModel = new FileLinksModel();
+
+            RegisterHotKeys();
         }
 
         private void RegisterHotKeys()
         {
-            hotkeyHandler = new HotKeyHandler();
-
             hotkeyHandler.HotKeyPressed += new EventHandler<HotKeyPressedEventArgs>(HandleHotKeyPressed);
 
             hotkeyHandler.Register(0,
@@ -68,7 +72,6 @@ namespace FluxPrompt
 
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
-            //e.Modifiers
             int selectedIndex;
             
             switch (e.KeyCode)
@@ -100,29 +103,39 @@ namespace FluxPrompt
                             ResultDataGridView.Rows[selectedIndex + 1].Selected = true;
                         }
                     }
-                    //TODO select next result row.
                     break;
                 case Keys.Enter:
-                    string csScript = PromptTextBox.Text.ToString();
-
-                    object result = new object();
-
-                    try
+                    if (ResultDataGridView.Rows.Count > 0)
                     {
-                        CSharpScript.EvaluateAsync(csScript).ContinueWith(s => result = s.Result).Wait();
-                    }
-                    catch (Exception ex)
-                    {
-                        result = ex.Message;
-                    }
-                    
-                    ResultDataGridView.Rows.Insert(0, csScript + Environment.NewLine + Convert.ToString(result));
+                        int selectedRowIndex = ResultDataGridView.SelectedRows[0].Index;
+                        FileLink selectedLink = fileLinksModel.GetFileLink((Guid)ResultDataGridView.Rows[selectedRowIndex].Cells[1].Value);
 
-                    e.Handled = true;
+                        PromptTextBox.Clear();
+                        ResultDataGridView.Rows.Clear();
+                        WindowState = FormWindowState.Minimized;
+
+                        Process.Start(selectedLink.Path); //TODO Flesh this out to launch w/ paremeters and environment.
+                    }
 
                     break;
                 case Keys.Escape:
                     WindowState = FormWindowState.Minimized;
+                    break;
+                default:
+                    ResultDataGridView.Rows.Clear();
+
+                    if (PromptTextBox.Text.Length > 1)
+                    {
+                        List<FileLink> results = fileLinksModel.GetFileLinks(PromptTextBox.Text);
+                        if (results.Count > 0)
+                        {
+                            foreach (FileLink link in results)
+                            {
+                                ResultDataGridView.Rows.Add(link.Name, link.Key);
+                            }
+                            ResultDataGridView.Rows[0].Selected = true;
+                        }
+                    }
                     break;
             }
         }

@@ -2,25 +2,69 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace FluxPrompt.Data
 {
     class FileLinksModel
     {
+        public List<FileLink> FileLinks { get; set; }
+        public List<LaunchHistory> LaunchHistories { get; set; }
+
         public FileLinksModel()
         {
             ScanShortcuts();
         }
 
-        public List<FileLink> FileLinks { get; set; }
-        public List<LaunchHistory> LaunchHistories { get; set; }
+        public FileLink GetFileLink(Guid Key)
+        {
+            return FileLinks.FirstOrDefault(t => t.Key == Key);
+        }
 
         /// <summary>
         /// Given a search phrase, return an ordered list of FileLink with previously searched items and closest matches at the top.
         /// </summary>
         public List<FileLink> GetFileLinks(string SearchPhrase)
         {
-            throw new NotImplementedException();
+            List<Tuple<int, FileLink>> rankedResults = new List<Tuple<int, FileLink>>();
+            string keyPhrase = SearchPhrase.ToLower();
+
+            foreach (FileLink link in FileLinks)
+            {
+                int match = 0,
+                    newMatch = 0;
+
+                foreach (char item in keyPhrase)
+                {
+                    newMatch = link.Name.ToLowerInvariant().IndexOf(item, match);
+
+                    if (newMatch >= match)
+                    {
+                        match = newMatch;
+                    }
+                    else
+                    {
+                        newMatch = int.MaxValue;
+                        break;
+                    }
+                }
+
+                if (newMatch == match)
+                {
+                    int firstMatch = link.Name.ToLowerInvariant().IndexOf(keyPhrase.First());
+
+                    rankedResults.Add(new Tuple<int, FileLink>(
+                        firstMatch + match,
+                        link));
+                }
+            }
+
+            List<FileLink> results = (from c in rankedResults
+                                      orderby c.Item1, c.Item2.Name.Length, c.Item2.Name
+                                      select c.Item2
+                                      ).ToList();
+
+            return results;
         }
 
         /// <summary>
@@ -48,12 +92,12 @@ namespace FluxPrompt.Data
         private void ScanShortcuts(Stack<string> Paths)
         {
             FileLinks = new List<FileLink>();
-            Shell32.Shell shell = new Shell32.Shell();
+            Shell shell = new Shell();
 
             while (Paths.Count > 0)
             {
                 string path = Paths.Pop();
-                string[] files = System.IO.Directory.GetFiles(path, "*.lnk", System.IO.SearchOption.AllDirectories);
+                string[] files = Directory.GetFiles(path, "*.lnk", SearchOption.AllDirectories);
 
                 foreach (string file in files)
                 {
@@ -76,7 +120,7 @@ namespace FluxPrompt.Data
                     }
                     catch
                     {
-                        // Do nothing for now.
+                        // Do nothing. Permission exceptions are to be expected here.
                         //TODO Eventually report on exceptions scanning shortcuts after this is not running on every launch.
                     }
                 }
