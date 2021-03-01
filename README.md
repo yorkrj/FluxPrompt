@@ -17,7 +17,7 @@ Type Escape to minimize FluxPrompt to the notification tray. You may double clic
 
 - Persist history of launches across runs.
 - Improve error handling.
-- Currently requrires administrator access on every run since scanning the Start Menu requires elevated priviledges. Scanning shortcuts in a separate elevated proccess will aleviate this requirement.
+- Currently administrator access on every run is helpful since scanning the Start Menu without elevated privileges misses many common shortcuts due to permissions errors. Scanning shortcuts in a separate elevated proccess will aleviate this requirement.
 - Installer.
 - Add ability to launch an application as administrator.
 - Create cusomizable settings.
