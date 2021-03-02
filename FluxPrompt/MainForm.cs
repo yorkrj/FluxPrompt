@@ -205,7 +205,7 @@ namespace FluxPrompt
             }
         }
 
-        private void ResultDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void ResultDataGridView_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             LaunchApplication();
         }

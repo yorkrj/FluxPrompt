@@ -77,7 +77,7 @@ namespace FluxPrompt
             this.ResultDataGridView.Size = new System.Drawing.Size(800, 404);
             this.ResultDataGridView.TabIndex = 1;
             this.ResultDataGridView.TabStop = false;
-            this.ResultDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.ResultDataGridView_CellContentClick);
+            this.ResultDataGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.ResultDataGridView_CellClick);
             // 
             // PromptPanel
             // 
