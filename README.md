@@ -1,5 +1,5 @@
 # FluxPrompt
-Easily launch applications without using the Windows Start Menu. This is inspired by other popular launchers. My hope is to add addional capabilities such as enhanced clipboard functionality, basic C# scripting, and boilerplate text retrieval. 
+Easily launch applications without using the Windows Start Menu or touching your mouse. This is inspired by other popular launchers. My hope is to add addional capabilities such as enhanced clipboard functionality, basic C# scripting, and boilerplate text retrieval. 
 
 Version: **Alpha**
 
