@@ -162,6 +162,7 @@ namespace FluxPrompt
 
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
+            fileLinksModel.SaveHistory();
             hotkeyHandler.Close();
             notifyIcon1.Visible = false;
         }

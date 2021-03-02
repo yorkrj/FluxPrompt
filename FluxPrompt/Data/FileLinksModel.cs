@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace FluxPrompt.Data
 {
@@ -11,10 +12,22 @@ namespace FluxPrompt.Data
         public List<FileLink> FileLinks { get; set; }
         public List<LaunchHistory> LaunchHistories { get; set; }
 
+        private const string FileLinkFileName = "Links.dat";
+        private const string HistoryFileName = "History.dat";
+
         public FileLinksModel()
         {
-            ScanShortcuts();
-            LaunchHistories = new List<LaunchHistory>(); // TODO persistance
+            if (File.Exists(FileLinkFileName))
+            {
+                LoadFileLinks();
+            }
+            else
+            {
+                ScanShortcuts();
+                SaveFileLinks();
+            }
+
+            LoadHistory();
         }
 
         public FileLink GetFileLink(Guid Key)
@@ -123,6 +136,92 @@ namespace FluxPrompt.Data
             paths.Push(Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu));
 
             ScanShortcuts(paths);
+        }
+
+        private void SaveFileLinks()
+        {
+            if (File.Exists(FileLinkFileName))
+            {
+                File.Delete(FileLinkFileName);
+            }
+
+            using (FileStream stream = new FileStream(FileLinkFileName, FileMode.CreateNew))
+            using (BinaryWriter writer = new BinaryWriter(stream, Encoding.UTF8, false))
+            {
+                foreach (FileLink link in FileLinks)
+                {
+                    writer.Write(link.Key.ToString());
+                    writer.Write(link.Name);
+                    writer.Write(link.Path);
+                    writer.Write(link.WorkingDirectory);
+                    writer.Write(link.Arguments);
+                }
+            }
+        }
+
+        private void LoadFileLinks()
+        {
+            FileLinks = new List<FileLink>();
+
+            using (FileStream stream = new FileStream(FileLinkFileName, FileMode.Open))
+            using (BinaryReader reader = new BinaryReader(stream, Encoding.UTF8, false))
+            {
+                while (reader.PeekChar() != -1)
+                {
+                    FileLink link = new FileLink()
+                    {
+                        Key = Guid.Parse(reader.ReadString()),
+                        Name = reader.ReadString(),
+                        Path = reader.ReadString(),
+                        WorkingDirectory = reader.ReadString(),
+                        Arguments = reader.ReadString()
+                    };
+                    FileLinks.Add(link);
+                }
+            }
+        }
+
+        public void SaveHistory()
+        {
+            if (File.Exists(HistoryFileName))
+            {
+                File.Delete(HistoryFileName);
+            }
+
+            using (FileStream stream = new FileStream(HistoryFileName, FileMode.CreateNew))
+            using (BinaryWriter writer = new BinaryWriter(stream, Encoding.UTF8, false))
+            {
+                foreach (LaunchHistory history in LaunchHistories)
+                {
+                    writer.Write(history.SearchPhrase);
+                    writer.Write(history.CountLaunches);
+                    writer.Write(history.LastLaunched.ToBinary());
+                    writer.Write(history.FileLink.Key.ToString());
+                }
+            }
+        }
+
+        private void LoadHistory()
+        {
+            LaunchHistories = new List<LaunchHistory>();
+
+            if (File.Exists(HistoryFileName))
+            {
+                using (FileStream stream = new FileStream(HistoryFileName, FileMode.Open))
+                using (BinaryReader reader = new BinaryReader(stream, Encoding.UTF8, false))
+                {
+                    while (reader.PeekChar() != -1)
+                    {
+                        LaunchHistory history = new LaunchHistory();
+                        history.SearchPhrase = reader.ReadString();
+                        history.CountLaunches = reader.ReadInt32();
+                        history.LastLaunched = DateTime.FromBinary(reader.ReadInt64());
+                        Guid key = Guid.Parse(reader.ReadString());
+                        history.FileLink = FileLinks.FirstOrDefault(t => t.Key == key);
+                        LaunchHistories.Add(history);
+                    }
+                }
+            }
         }
 
         /// <summary>
