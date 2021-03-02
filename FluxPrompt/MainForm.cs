@@ -58,6 +58,7 @@ namespace FluxPrompt
 
             WindowState = FormWindowState.Normal;
             TopMost = true;
+            PromptTextBox.Focus();
             Activate();
         }
 
@@ -98,18 +99,7 @@ namespace FluxPrompt
                 case Keys.Enter:
                     if (ResultDataGridView.Rows.Count > 0)
                     {
-                        int selectedRowIndex = ResultDataGridView.SelectedRows[0].Index;
-                        Guid selectedKey = (Guid)ResultDataGridView.Rows[selectedRowIndex].Cells[1].Value;
-                        FileLink selectedLink = fileLinksModel.GetFileLink(selectedKey);
-
-                        fileLinksModel.SetLaunchHistory(PromptTextBox.Text, selectedKey);
-
-                        PromptTextBox.Clear();
-                        ResultDataGridView.Rows.Clear();
-                        WindowState = FormWindowState.Minimized;
-
-                        //TODO Error handling for Process.Start since shortcuts my contain bad paths.
-                        Process.Start(selectedLink.Path); //TODO Flesh this out to launch w/ paremeters and environment.
+                        LaunchApplication();
                     }
 
                     break;
@@ -133,6 +123,22 @@ namespace FluxPrompt
                     }
                     break;
             }
+        }
+
+        private void LaunchApplication()
+        {
+            int selectedRowIndex = ResultDataGridView.SelectedRows[0].Index;
+            Guid selectedKey = (Guid)ResultDataGridView.Rows[selectedRowIndex].Cells[1].Value;
+            FileLink selectedLink = fileLinksModel.GetFileLink(selectedKey);
+
+            fileLinksModel.SetLaunchHistory(PromptTextBox.Text, selectedKey);
+
+            PromptTextBox.Clear();
+            ResultDataGridView.Rows.Clear();
+            WindowState = FormWindowState.Minimized;
+
+            //TODO Error handling for Process.Start since shortcuts my contain bad paths.
+            Process.Start(selectedLink.Path); //TODO Flesh this out to launch w/ paremeters and environment.
         }
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -200,7 +206,7 @@ namespace FluxPrompt
 
         private void ResultDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            // TODO launch selected app.
+            LaunchApplication();
         }
     }
 }
