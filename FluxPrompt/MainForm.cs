@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -30,21 +29,13 @@ namespace FluxPrompt
         {
             InitializeComponent();
 
-            TransparencyKey = (BackColor);
-            ShowInTaskbar = false;
-            TopMost = true;
-
-            notifyIcon1.Visible = true;
             notifyIcon1.Icon = SystemIcons.Asterisk;
-            notifyIcon1.Text = "Flux Prompt";
 
             ResultDataGridView.ColumnCount = 2;
             ResultDataGridView.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             ResultDataGridView.Columns[0].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             ResultDataGridView.Columns[1].Visible = false; // Column 1 holds key values.
             ResultDataGridView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            ResultDataGridView.RowHeadersVisible = false;
-            ResultDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
             hotkeyHandler = new HotKeyHandler();
             fileLinksModel = new FileLinksModel();
@@ -205,6 +196,11 @@ namespace FluxPrompt
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
+        }
+
+        private void ResultDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // TODO launch selected app.
         }
     }
 }

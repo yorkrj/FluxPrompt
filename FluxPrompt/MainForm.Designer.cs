@@ -55,8 +55,7 @@ namespace FluxPrompt
             this.notifyIcon1.BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info;
             this.notifyIcon1.BalloonTipText = "foo";
             this.notifyIcon1.BalloonTipTitle = "bar";
-            this.notifyIcon1.Text = "notifyIcon1";
-            this.notifyIcon1.Visible = true;
+            this.notifyIcon1.Text = "FluxPrompt";
             this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
             // 
             // ResultDataGridView
@@ -72,10 +71,13 @@ namespace FluxPrompt
             this.ResultDataGridView.MultiSelect = false;
             this.ResultDataGridView.Name = "ResultDataGridView";
             this.ResultDataGridView.ReadOnly = true;
+            this.ResultDataGridView.RowHeadersVisible = false;
             this.ResultDataGridView.RowTemplate.Height = 25;
+            this.ResultDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.ResultDataGridView.Size = new System.Drawing.Size(800, 404);
             this.ResultDataGridView.TabIndex = 1;
             this.ResultDataGridView.TabStop = false;
+            this.ResultDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.ResultDataGridView_CellContentClick);
             // 
             // PromptPanel
             // 
@@ -110,7 +112,12 @@ namespace FluxPrompt
             this.Controls.Add(this.ResultDataGridView);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "MainForm";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Flux Prompt";
+            this.TopMost = true;
+            this.TransparencyKey = System.Drawing.SystemColors.Control;
             this.Activated += new System.EventHandler(this.OnActivated);
             this.Deactivate += new System.EventHandler(this.OnDeactivate);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
