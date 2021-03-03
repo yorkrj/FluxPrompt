@@ -97,7 +97,8 @@ namespace FluxPrompt
                 case Keys.Enter:
                     if (ResultDataGridView.Rows.Count > 0)
                     {
-                        LaunchApplication();
+                        bool altPressed = e.Modifiers == Keys.Alt;
+                        LaunchApplication(altPressed);
                     }
 
                     break;
@@ -123,7 +124,7 @@ namespace FluxPrompt
             }
         }
 
-        private void LaunchApplication()
+        private void LaunchApplication(bool RunAsAdministrator)
         {
             int selectedRowIndex = ResultDataGridView.SelectedRows[0].Index;
             Guid selectedKey = (Guid)ResultDataGridView.Rows[selectedRowIndex].Cells[1].Value;
@@ -131,12 +132,37 @@ namespace FluxPrompt
 
             fileLinksModel.SetLaunchHistory(PromptTextBox.Text, selectedKey);
 
+            ProcessStartInfo startInfo = new ProcessStartInfo()
+            {
+                FileName = selectedLink.Path,
+                Arguments = selectedLink.Arguments,
+                WorkingDirectory = Environment.ExpandEnvironmentVariables(selectedLink.WorkingDirectory)
+            };
+
+            if (RunAsAdministrator)
+            {
+                startInfo.UseShellExecute = true;
+                startInfo.Verb = "runas";
+            }
+
+            try
+            {
+                Process.Start(startInfo);
+            }
+            catch
+            {
+                // TODO Add standardized error reporting.
+                MessageBox.Show(
+                    this,
+                    "We were not able to launch this application.\nFluxPrompt is still a work in progress.",
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+
             PromptTextBox.Clear();
             ResultDataGridView.Rows.Clear();
             WindowState = FormWindowState.Minimized;
-
-            //TODO Error handling for Process.Start since shortcuts my contain bad paths.
-            Process.Start(selectedLink.Path); //TODO Flesh this out to launch w/ paremeters and environment.
         }
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -188,7 +214,7 @@ namespace FluxPrompt
         }
 
         /// <summary>
-        /// Handle certain key presses to prevent audible alerts and unwanted movement of cursor.
+        /// Suppress certain key presses to prevent audible alerts and unwanted movement of cursor.
         /// </summary>
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
@@ -205,7 +231,7 @@ namespace FluxPrompt
 
         private void ResultDataGridView_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            LaunchApplication();
+            LaunchApplication(false);
         }
     }
 }
