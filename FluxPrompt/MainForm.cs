@@ -29,8 +29,6 @@ namespace FluxPrompt
         {
             InitializeComponent();
 
-            notifyIcon1.Icon = SystemIcons.Asterisk;
-
             ResultDataGridView.ColumnCount = 2;
             ResultDataGridView.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             ResultDataGridView.Columns[0].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
