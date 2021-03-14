@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -10,7 +9,7 @@ namespace FluxPrompt
 {
     public partial class MainForm : Form
     {
-        #region Interop for MovableControls_MouseDown
+        #region Interop for MovableControls_MouseDown - Drag to move window.
 
         private const int WM_NCLBUTTONDOWN = 0xA1;
         private const int HT_CAPTION = 0x2;
@@ -41,13 +40,26 @@ namespace FluxPrompt
             RegisterHotKeys();
         }
 
-        private void RegisterHotKeys()
-        {
-            hotkeyHandler.HotKeyPressed += new EventHandler<HotKeyPressedEventArgs>(HandleHotKeyPressed);
-
-            hotkeyHandler.Register(0,
-                new HotKeyModifer[] { HotKeyModifer.Alt, HotKeyModifer.NoRepeat },
-                Keys.Space.GetHashCode());
+        private void OnKeyUp(object sender, KeyEventArgs e)
+        {            
+            switch (e.KeyCode)
+            {
+                case Keys.Enter:
+                    LaunchApplication(e);
+                    break;
+                case Keys.Up:
+                    SelectPreviousResult();
+                    break;
+                case Keys.Down:
+                    SelectNextResult();
+                    break;
+                case Keys.Escape:
+                    HideMainWindow();
+                    break;
+                default:
+                    UpdateResults();
+                    break;
+            }
         }
 
         public void HandleHotKeyPressed(object sender, HotKeyPressedEventArgs e)
@@ -60,68 +72,80 @@ namespace FluxPrompt
             Activate();
         }
 
-        private void OnKeyUp(object sender, KeyEventArgs e)
+        private void RegisterHotKeys()
+        {
+            hotkeyHandler.HotKeyPressed += new EventHandler<HotKeyPressedEventArgs>(HandleHotKeyPressed);
+
+            hotkeyHandler.Register(0,
+                new HotKeyModifer[] { HotKeyModifer.Alt, HotKeyModifer.NoRepeat },
+                Keys.Space.GetHashCode());
+        }
+
+        private void HideMainWindow()
+        {
+            WindowState = FormWindowState.Minimized;
+        }
+
+        private void UpdateResults()
+        {
+            ResultDataGridView.Rows.Clear();
+
+            if (PromptTextBox.Text.Length > 1)
+            {
+                List<FileLink> results = fileLinksModel.GetFileLinks(PromptTextBox.Text);
+                if (results.Count > 0)
+                {
+                    foreach (FileLink link in results)
+                    {
+                        ResultDataGridView.Rows.Add(link.Name, link.Key);
+                    }
+                    ResultDataGridView.Rows[0].Selected = true;
+                }
+            }
+        }
+
+        private void LaunchApplication(KeyEventArgs e)
+        {
+            if (ResultDataGridView.Rows.Count > 0)
+            {
+                bool altPressed = e.Modifiers == Keys.Alt;
+                LaunchApplication(altPressed);
+            }
+        }
+
+        private void SelectNextResult()
+        {
+            if (ResultDataGridView.Rows.Count > 0)
+            {
+                int selectedIndex = ResultDataGridView.SelectedRows[0].Index;
+
+                if (selectedIndex < ResultDataGridView.Rows.Count - 1)
+                {
+                    ResultDataGridView.ClearSelection();
+                    ResultDataGridView.Rows[selectedIndex + 1].Selected = true;
+                }
+            }
+        }
+
+        private int SelectPreviousResult()
         {
             int selectedIndex;
-            
-            switch (e.KeyCode)
+            if (ResultDataGridView.SelectedRows.Count > 0)
             {
-                case Keys.Up:
-                    if (ResultDataGridView.SelectedRows.Count > 0)
-                    {
-                        selectedIndex = ResultDataGridView.SelectedRows[0].Index;
-                    }
-                    else
-                    {
-                        selectedIndex = 0;
-                    }
-
-                    if (selectedIndex > 0)
-                    {
-                        ResultDataGridView.ClearSelection();
-                        ResultDataGridView.Rows[selectedIndex - 1].Selected = true;
-                    }
-                    break;
-                case Keys.Down:
-                    if (ResultDataGridView.Rows.Count > 0)
-                    {
-                        selectedIndex = ResultDataGridView.SelectedRows[0].Index;
-
-                        if (selectedIndex < ResultDataGridView.Rows.Count - 1)
-                        {
-                            ResultDataGridView.ClearSelection();
-                            ResultDataGridView.Rows[selectedIndex + 1].Selected = true;
-                        }
-                    }
-                    break;
-                case Keys.Enter:
-                    if (ResultDataGridView.Rows.Count > 0)
-                    {
-                        bool altPressed = e.Modifiers == Keys.Alt;
-                        LaunchApplication(altPressed);
-                    }
-
-                    break;
-                case Keys.Escape:
-                    WindowState = FormWindowState.Minimized;
-                    break;
-                default:
-                    ResultDataGridView.Rows.Clear();
-
-                    if (PromptTextBox.Text.Length > 1)
-                    {
-                        List<FileLink> results = fileLinksModel.GetFileLinks(PromptTextBox.Text);
-                        if (results.Count > 0)
-                        {
-                            foreach (FileLink link in results)
-                            {
-                                ResultDataGridView.Rows.Add(link.Name, link.Key);
-                            }
-                            ResultDataGridView.Rows[0].Selected = true;
-                        }
-                    }
-                    break;
+                selectedIndex = ResultDataGridView.SelectedRows[0].Index;
             }
+            else
+            {
+                selectedIndex = 0;
+            }
+
+            if (selectedIndex > 0)
+            {
+                ResultDataGridView.ClearSelection();
+                ResultDataGridView.Rows[selectedIndex - 1].Selected = true;
+            }
+
+            return selectedIndex;
         }
 
         private void LaunchApplication(bool RunAsAdministrator)
@@ -132,7 +156,7 @@ namespace FluxPrompt
 
             fileLinksModel.SetLaunchHistory(PromptTextBox.Text, selectedKey);
 
-            ProcessStartInfo startInfo = new ProcessStartInfo()
+            ProcessStartInfo startInfo = new()
             {
                 FileName = selectedLink.Path,
                 Arguments = selectedLink.Arguments,
