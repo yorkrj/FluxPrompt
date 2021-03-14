@@ -9,7 +9,7 @@ When run for the first time, FluxPrompt will scan your Start Menu for shortcuts.
 
 Type Control + Space to open FluxPrompt then start typing letters of the name of the application that you would like to run. For instance typing "np" will find Notepad, Notepad++ and other programs that have these letters in the name of the shortcut.  The applications that you search for most frequently appear at the top of the results.
 
-Type Up and Down keys to select the application that you would like to run, then type enter to launch it. Alternatively, click on a result to run an application.
+Type Up and Down keys to select the application that you would like to run, then type enter to launch it. Alternatively, click on a result to run an application. Typing Alt + Enter will launch the application with administrator priviledges if allowed at UAC prompt. 
 
 Type Escape to minimize FluxPrompt to the notification tray.
 
@@ -17,7 +17,6 @@ You can type Control + Space  to show Flux Prompt again. Double clicking on the 
 
 ## Roadmap
 
-- Add ability to launch an application as administrator.
 - Improve error handling.
 - Running as administrator on the initial run is helpful since scanning the Start Menu without elevated privileges misses many common shortcuts due to permissions errors. Scanning shortcuts in a separate elevated proccess will improve the situation.
 - Create cusomizable settings.
