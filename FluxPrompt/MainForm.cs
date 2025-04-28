@@ -173,12 +173,12 @@ namespace FluxPrompt
             {
                 Process.Start(startInfo);
             }
-            catch
+            catch (Exception ex)
             {
                 // TODO Add standardized error reporting.
                 MessageBox.Show(
                     this,
-                    "We were not able to launch this application.\nFluxPrompt is still a work in progress.",
+                    "We were not able to launch this application.\nFluxPrompt is still a work in progress. " + ex.Message,
                     "Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);

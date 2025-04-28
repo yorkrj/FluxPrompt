@@ -1,9 +1,9 @@
-﻿using Shell32;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 namespace FluxPrompt.Data
 {
@@ -231,7 +231,7 @@ namespace FluxPrompt.Data
         private void ScanShortcuts(Stack<string> Paths)
         {
             FileLinks = new List<FileLink>();
-            Shell shell = new Shell();
+            LaunchHistories = new List<LaunchHistory>();
 
             while (Paths.Count > 0)
             {
@@ -240,29 +240,24 @@ namespace FluxPrompt.Data
 
                 foreach (string file in files)
                 {
-                    path = Path.GetDirectoryName(file);
-                    string filenameOnly = Path.GetFileName(file);
-                    Folder folder = shell.NameSpace(path);
-                    FolderItem folderItem = folder.ParseName(filenameOnly);
                     try
                     {
-                        ShellLinkObject link = (ShellLinkObject)folderItem.GetLink;
-
-                        if (!string.IsNullOrWhiteSpace(link.Path))
+                        var startInfo = new ProcessStartInfo(file);
+                        if (!string.IsNullOrWhiteSpace(startInfo.FileName))
                         {
                             FileLinks.Add(new FileLink
                             {
                                 Key = Guid.NewGuid(),
-                                Name = folderItem.Name,
-                                Path = link.Path,
-                                WorkingDirectory = link.WorkingDirectory,
-                                Arguments = link.Arguments
+                                Name = Path.GetFileNameWithoutExtension(file),
+                                Path = startInfo.FileName,
+                                WorkingDirectory = startInfo.WorkingDirectory,
+                                Arguments = startInfo.Arguments
                             });
                         }
                     }
                     catch
                     {
-                        // Do nothing. Permission exceptions are to be expected here.
+                        // Do nothing for now. Permission exceptions are to be expected here.
                         //TODO Eventually report on exceptions scanning shortcuts after this is not running on every launch.
                     }
                 }
@@ -270,3 +265,4 @@ namespace FluxPrompt.Data
         }
     }
 }
+

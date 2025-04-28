@@ -338,3 +338,5 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+FluxPrompt/History.dat
+FluxPrompt/Links.dat
