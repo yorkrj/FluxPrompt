@@ -38,6 +38,7 @@ namespace FluxPrompt
             fileLinksModel = new FileLinksModel();
 
             RegisterHotKeys();
+            AddContextMenuToTray();
         }
 
         private void OnKeyUp(object sender, KeyEventArgs e)
@@ -79,6 +80,46 @@ namespace FluxPrompt
             hotkeyHandler.Register(0,
                 new HotKeyModifer[] { HotKeyModifer.Alt, HotKeyModifer.NoRepeat },
                 Keys.Space.GetHashCode());
+        }
+
+        private void AddContextMenuToTray()
+        {
+            var helpMenuItem = new ToolStripMenuItem("Help");
+            helpMenuItem.Click += (s, e) => ShowHelpWindow();
+
+            var restoreMenuItem = new ToolStripMenuItem("Restore");
+            restoreMenuItem.Click += (s, e) => {
+                WindowState = FormWindowState.Normal;
+                TopMost = true;
+                PromptTextBox.Focus();
+                Activate();
+            };
+
+            var exitMenuItem = new ToolStripMenuItem("Exit");
+            exitMenuItem.Click += (s, e) => this.Close();
+            
+            var trayContextMenu = new ContextMenuStrip();
+            trayContextMenu.Items.Add(helpMenuItem);
+            trayContextMenu.Items.Add(restoreMenuItem);
+            trayContextMenu.Items.Add(new ToolStripSeparator());
+            trayContextMenu.Items.Add(exitMenuItem);
+            
+            this.notifyIcon1.ContextMenuStrip = trayContextMenu;
+        }
+
+        /// <summary>
+        /// Displays a basic help window with usage instructions.
+        /// </summary>
+        private void ShowHelpWindow()
+        {
+            string helpText = "FluxPrompt Usage:\n" +
+                              "- Ctrl+Space: Open FluxPrompt.\n" +
+                              "- Up/Down: Navigate results.\n" +
+                              "- Enter: Launch selected app.\n" +
+                              "- Alt+Enter: Launch as administrator.\n" +
+                              "- Escape: Minimize to tray.\n" +
+                              "- Right-click tray icon: Access Help or Exit.\n";
+            MessageBox.Show(helpText, "FluxPrompt Help", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void HideMainWindow()
@@ -173,12 +214,12 @@ namespace FluxPrompt
             {
                 Process.Start(startInfo);
             }
-            catch (Exception ex)
+            catch
             {
                 // TODO Standardize error handling.
                 MessageBox.Show(
                     this,
-                    "Could not start this application.\nFluxPrompt is still a work in progress.",
+                    "Could not start this application.\nFluxPrompt is a work in progress.",
                     "Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);

@@ -14,14 +14,15 @@ Type Up and Down keys to select the application that you would like to run, then
 Type Escape to minimize FluxPrompt to the notification tray.
 
 You can type Control + Space  to show Flux Prompt again. Double clicking on the notification icon does the same thing.
++- Right-click on the notification icon and select 'Help' to view usage instructions.
 
 ## Issues
 
-- Need a straightforward way of exiting the application.
+- Control + Space keyboard shortcut clashes with other common problems. It's been a while but I'm fairly certain it's actually Alt + Space.
 
 ## Roadmap
 
-- Improve error handling.
+- Improve error handling and add basic logging.
 - Running as administrator on the initial run is helpful since scanning the Start Menu without elevated privileges misses many common shortcuts due to permissions errors. Scanning shortcuts in a separate elevated proccess will improve the situation.
 - Create cusomizable settings.
   - Change hot keys
