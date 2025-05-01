@@ -160,12 +160,12 @@ namespace FluxPrompt
             {
                 FileName = selectedLink.Path,
                 Arguments = selectedLink.Arguments,
-                WorkingDirectory = Environment.ExpandEnvironmentVariables(selectedLink.WorkingDirectory)
+                WorkingDirectory = Environment.ExpandEnvironmentVariables(selectedLink.WorkingDirectory),
+                UseShellExecute = true
             };
 
             if (RunAsAdministrator)
             {
-                startInfo.UseShellExecute = true;
                 startInfo.Verb = "runas";
             }
 
@@ -175,10 +175,10 @@ namespace FluxPrompt
             }
             catch (Exception ex)
             {
-                // TODO Add standardized error reporting.
+                // TODO Standardize error handling.
                 MessageBox.Show(
                     this,
-                    "We were not able to launch this application.\nFluxPrompt is still a work in progress. " + ex.Message,
+                    "Could not start this application.\nFluxPrompt is still a work in progress.",
                     "Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);

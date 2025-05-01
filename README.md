@@ -17,8 +17,7 @@ You can type Control + Space  to show Flux Prompt again. Double clicking on the 
 
 ## Issues
 
-- Windows 11 does not support currently implemented method for lunching apps based on shortcuts.
-- Need a more straightforward way of exiting the application.
+- Need a straightforward way of exiting the application.
 
 ## Roadmap
 
