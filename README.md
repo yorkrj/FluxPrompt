@@ -14,11 +14,12 @@ Type Up and Down keys to select the application that you would like to run, then
 Type Escape to minimize FluxPrompt to the notification tray.
 
 You can type Control + Space  to show Flux Prompt again. Double clicking on the notification icon does the same thing.
-+- Right-click on the notification icon and select 'Help' to view usage instructions.
+
+Right-click on the notification icon and select 'Help' to view usage instructions.
 
 ## Issues
 
-- Control + Space keyboard shortcut clashes with other common problems. It's been a while but I'm fairly certain it's actually Alt + Space.
+- Control + Space keyboard shortcut clashes with other common programs. It's been a while but I'm fairly certain it's actually Alt + Space.
 
 ## Roadmap
 
