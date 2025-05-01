@@ -340,3 +340,4 @@ ASALocalRun/
 healthchecksdb
 FluxPrompt/History.dat
 FluxPrompt/Links.dat
+.vscode/

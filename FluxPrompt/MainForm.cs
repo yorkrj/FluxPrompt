@@ -39,6 +39,39 @@ namespace FluxPrompt
 
             RegisterHotKeys();
             AddContextMenuToTray();
+            AddHamburgerButtonToPromptPanel();
+
+            // Center the text box vertically within its panel
+            this.PromptPanel.Resize += (s, e) =>
+                this.PromptTextBox.Top = (this.PromptPanel.Height - this.PromptTextBox.Height) / 2;
+            // Initial centering
+            this.PromptTextBox.Top = (this.PromptPanel.Height - this.PromptTextBox.Height) / 2;
+        }
+
+        private void AddHamburgerButtonToPromptPanel()
+        {
+            var hamburgerButton = new Button();
+            hamburgerButton.Name = "HamburgerButton";
+            hamburgerButton.Text = "\u2630";
+            hamburgerButton.FlatStyle = FlatStyle.Flat;
+            hamburgerButton.FlatAppearance.BorderSize = 0;
+            hamburgerButton.Font = new System.Drawing.Font("Segoe UI Variable", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            hamburgerButton.ForeColor = System.Drawing.Color.White;
+            hamburgerButton.BackColor = System.Drawing.Color.Transparent;
+            hamburgerButton.Size = new System.Drawing.Size(30, 30);
+            hamburgerButton.Location = new System.Drawing.Point(this.PromptPanel.Width - 40, (this.PromptPanel.Height - hamburgerButton.Height) / 2);
+            hamburgerButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            this.PromptPanel.Controls.Add(hamburgerButton);
+
+            var hamburgerMenu = new ContextMenuStrip();
+            var helpItem = new ToolStripMenuItem("Help");
+            helpItem.Click += (s, e) => ShowHelpWindow();
+            var exitItem = new ToolStripMenuItem("Exit");
+            exitItem.Click += (s, e) => this.Close();
+            hamburgerMenu.Items.Add(helpItem);
+            hamburgerMenu.Items.Add(exitItem);
+
+            hamburgerButton.Click += (s, e) => hamburgerMenu.Show(hamburgerButton, new System.Drawing.Point(0, hamburgerButton.Height));
         }
 
         private void OnKeyUp(object sender, KeyEventArgs e)
