@@ -48,6 +48,8 @@ namespace FluxPrompt
                 this.PromptTextBox.Top = (this.PromptPanel.Height - this.PromptTextBox.Height) / 2;
             // Initial centering
             this.PromptTextBox.Top = (this.PromptPanel.Height - this.PromptTextBox.Height) / 2;
+
+            this.KeyPreview = true;
         }
 
         private void AddHamburgerButtonToPromptPanel()
@@ -76,7 +78,15 @@ namespace FluxPrompt
             hamburgerMenu.Items.Add(settingsItem);
             hamburgerMenu.Items.Add(exitItem);
 
-            hamburgerButton.Click += (s, e) => hamburgerMenu.Show(hamburgerButton, new System.Drawing.Point(0, hamburgerButton.Height));
+            hamburgerButton.Tag = hamburgerMenu;
+            hamburgerButton.Click += (s, e) => ShowHamburgerMenu(hamburgerButton, hamburgerMenu);
+        }
+
+        private void ShowHamburgerMenu(Button button, ContextMenuStrip menu)
+        {
+            menu.Show(button, new System.Drawing.Point(0, button.Height));
+            menu.Focus();
+            menu.Select();
         }
 
         private void OnKeyUp(object sender, KeyEventArgs e)
@@ -334,6 +344,21 @@ namespace FluxPrompt
             {
                 e.Handled = true;
                 e.SuppressKeyPress = true;
+            }
+            else if (e.Alt && !e.Handled)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                var hamburgerButton = PromptPanel.Controls.Find("HamburgerButton", true)[0] as Button;
+                var hamburgerMenu = hamburgerButton.Tag as ContextMenuStrip;
+                if (hamburgerMenu != null)
+                {
+                    ShowHamburgerMenu(hamburgerButton, hamburgerMenu);
+                }
+                else
+                {
+                    Debug.WriteLine("Hamburger menu is null");
+                }
             }
         }
 
