@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using FluxPrompt.Data;
 
 namespace FluxPrompt
 {
     /// <summary>
     /// HotKeyHandler allows for the registration and handling of global hot keys even when the application has been minimized to the notification tray.
     /// </summary>
-    class HotKeyHandler : NativeWindow
+    public class HotKeyHandler : NativeWindow
     {
         [DllImport("user32.dll")]
         private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
@@ -19,14 +20,24 @@ namespace FluxPrompt
 
         public event EventHandler<HotKeyPressedEventArgs> HotKeyPressed;
 
-        public HotKeyHandler()
-        {
-            this.CreateHandle(new CreateParams());
+        private readonly AppConfig config;
 
-            // TODO: Make this default hotkey configurable.
-            Register(0,
-                new HotKeyModifer[] { HotKeyModifer.Alt, HotKeyModifer.NoRepeat },
-                Keys.Space.GetHashCode());
+        public HotKeyHandler(AppConfig config)
+        {
+            this.config = config;
+            this.CreateHandle(new CreateParams());
+            RegisterHotKeyFromConfig();
+        }
+
+        public void RegisterHotKeyFromConfig()
+        {
+            int fsModifiers = 0;
+            foreach (HotKeyModifier modifier in config.HotKeys.Modifiers)
+            {
+                fsModifiers |= (int)modifier;
+            }
+
+            RegisterHotKey(Handle, 0, fsModifiers, config.HotKeys.Key.GetHashCode());
         }
 
         public bool Register(int id, HotKeyModifer[] modiferKeys, int virtualKeyCode)

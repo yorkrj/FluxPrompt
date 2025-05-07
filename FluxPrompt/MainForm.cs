@@ -23,19 +23,21 @@ namespace FluxPrompt
 
         private readonly HotKeyHandler hotkeyHandler;
         private readonly FileLinksModel fileLinksModel;
+        private readonly AppConfig config;
 
         public MainForm()
         {
             InitializeComponent();
+
+            config = AppConfig.Load();
+            hotkeyHandler = new HotKeyHandler(config);
+            fileLinksModel = new FileLinksModel();
 
             ResultDataGridView.ColumnCount = 2;
             ResultDataGridView.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             ResultDataGridView.Columns[0].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             ResultDataGridView.Columns[1].Visible = false; // Column 1 holds key values.
             ResultDataGridView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-
-            hotkeyHandler = new HotKeyHandler();
-            fileLinksModel = new FileLinksModel();
 
             RegisterHotKeys();
             AddContextMenuToTray();
@@ -66,9 +68,12 @@ namespace FluxPrompt
             var hamburgerMenu = new ContextMenuStrip();
             var helpItem = new ToolStripMenuItem("Help");
             helpItem.Click += (s, e) => ShowHelpWindow();
+            var settingsItem = new ToolStripMenuItem("Settings");
+            settingsItem.Click += (s, e) => ShowSettingsDialog();
             var exitItem = new ToolStripMenuItem("Exit");
             exitItem.Click += (s, e) => this.Close();
             hamburgerMenu.Items.Add(helpItem);
+            hamburgerMenu.Items.Add(settingsItem);
             hamburgerMenu.Items.Add(exitItem);
 
             hamburgerButton.Click += (s, e) => hamburgerMenu.Show(hamburgerButton, new System.Drawing.Point(0, hamburgerButton.Height));
@@ -146,13 +151,19 @@ namespace FluxPrompt
         private void ShowHelpWindow()
         {
             string helpText = "FluxPrompt Usage:\n" +
-                              "- Ctrl+Space: Open FluxPrompt.\n" +
+                              "- Alt+Space: Open FluxPrompt.\n" +
                               "- Up/Down: Navigate results.\n" +
                               "- Enter: Launch selected app.\n" +
                               "- Alt+Enter: Launch as administrator.\n" +
                               "- Escape: Minimize to tray.\n" +
                               "- Right-click tray icon: Access Help or Exit.\n";
             MessageBox.Show(helpText, "FluxPrompt Help", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void ShowSettingsDialog()
+        {
+            using var settingsForm = new SettingsForm(config, hotkeyHandler);
+            settingsForm.ShowDialog(this);
         }
 
         private void HideMainWindow()
@@ -284,7 +295,6 @@ namespace FluxPrompt
 
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
-            fileLinksModel.SaveHistory();
             hotkeyHandler.Close();
             notifyIcon1.Visible = false;
         }
