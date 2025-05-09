@@ -18,6 +18,7 @@ Future development plans include:
 - Smart boilerplate text retrieval and management
 - Custom automation workflows and shortcuts
 
+<!-- It's a little early for this section.
 ## Installation
 
 1. Download the latest release from the [Releases](https://github.com/yourusername/FluxPrompt/releases) page
@@ -28,6 +29,7 @@ Future development plans include:
 
 - Windows 10 or later
 - .NET Framework 4.7.2 or later
+-->
 
 ## Usage
 
