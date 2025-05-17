@@ -6,6 +6,7 @@
   - Change hot keys
   - Configure directories to be scanned for shortcuts and executables
 - Installer
+- Polish looking an feel of UI.
 - Improve error handling
 - Add basic logging of errors and performance metrics
 - Enhanced clipboard management and history
