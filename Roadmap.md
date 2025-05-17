@@ -11,6 +11,7 @@
 - Enhanced clipboard management and history
 - Smart boilerplate text retrieval and management
 - Custom automation workflows and shortcuts
+- Enable saving of data in JSON format in addition to the custom binary format.
 
 ## Known Issues
 
