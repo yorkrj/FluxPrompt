@@ -1,12 +1,11 @@
 # Set the working directory to the repository root
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location -Path $scriptPath\..
+Set-Location (Split-Path -Parent $scriptPath)
 
-# Build the installer using wix.exe
-& "C:\Program Files\WiX Toolset v6.0\bin\wix.exe" build $scriptPath\Product.wxs -ext WixToolset.UI.wixext
+# Create output directory if it doesn't exist
+New-Item -ItemType Directory -Force -Path "$scriptPath\bin\Release"
 
-# Move the output files to bin/Release
-Move-Item -Path $scriptPath\Product.msi -Destination $scriptPath\bin\Release\FluxPrompt-Setup-0.1.0-alpha.msi -Force
-Move-Item -Path $scriptPath\Product.wixpdb -Destination $scriptPath\bin\Release\FluxPrompt-Setup-0.1.0-alpha.wixpdb -Force
+# Build the installer using Inno Setup
+& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "$scriptPath\setup.iss"
 
-Write-Host "Installer built and moved to bin/Release." 
+Write-Host "Installer built in bin/Release." 
