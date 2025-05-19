@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?define WixUIExtension = "WixToolset.UI.wixext"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="FluxPrompt-Setup-0.1.0-alpha" 
+           Language="1033" 
+           Version="0.1.0.0" 
+           Manufacturer="Rob York" 
+           UpgradeCode="6A1B2C3D-4E5F-6789-ABCD-1234567890AB">
+    
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="ProductFeature" Title="FluxPrompt" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <UI Id="WixUI_InstallDir">
+      <Property Id="ApplicationName" Value="FluxPrompt" />
+      <Property Id="WixAppFolder" Value="WixPerMachineFolder" />
+    </UI>
+
+    <StandardDirectory Id="ProgramFilesFolder">
+      <Directory Id="INSTALLFOLDER" Name="FluxPrompt">
+        <Component Id="ApplicationFiles" Guid="*">
+          <File Id="ApplicationExecutable" 
+                Source="FluxPrompt\bin\Release\net9.0-windows10.0.17763.0\FluxPrompt.exe" 
+                KeyPath="yes" />
+          <File Id="HistoryFile" 
+                Source="FluxPrompt\History.dat" />
+          <File Id="LinksFile" 
+                Source="FluxPrompt\Links.dat" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="FluxPrompt">
+        <Component Id="ApplicationShortcut" Guid="*">
+          <Shortcut Id="ApplicationStartMenuShortcut" 
+                    Name="FluxPrompt" 
+                    Description="FluxPrompt Application" 
+                    Target="[#ApplicationExecutable]" 
+                    WorkingDirectory="INSTALLFOLDER" />
+          <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall" />
+          <RegistryValue Root="HKCU" Key="Software\FluxPrompt" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="StartupRegistry" Guid="*">
+        <RegistryValue Root="HKCU" 
+                      Key="Software\Microsoft\Windows\CurrentVersion\Run" 
+                      Name="FluxPrompt" 
+                      Type="string" 
+                      Value="&quot;[#ApplicationExecutable]&quot;" 
+                      KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <ComponentRef Id="ApplicationFiles" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="StartupRegistry" />
+    </ComponentGroup>
+  </Package>
+</Wix> 

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <WixToolsetVersion>6.0</WixToolsetVersion>
+    <WixToolsetPath>C:\Program Files\WiX Toolset v6.0</WixToolsetPath>
+    <OutputPath>bin/Release\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WixExtension Include="WixUIExtension">
+      <HintPath>$(WixToolsetPath)\bin\WixToolset.UI.wixext</HintPath>
+      <Name>WixUIExtension</Name>
+    </WixExtension>
+  </ItemGroup>
+</Project> 
