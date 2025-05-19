@@ -19,17 +19,17 @@ Future development plans include:
 - Smart boilerplate text retrieval and management
 - Custom automation workflows and shortcuts
 
-### System Requirements
-
-- Windows 10 version 1809 (build 17763) or later
-- .NET 9.0 Runtime
-
 ## Installation
 
 1. Download the latest release from the [Releases](https://github.com/yorkrj/FluxPrompt/releases) page
 2. Run the installer (FluxPrompt-Setup.exe)
 3. Follow the installation wizard
 4. FluxPrompt will automatically start with Windows
+
+### System Requirements
+
+- Windows 10 version 1809 (build 17763) or later
+- .NET 9.0 Runtime
 
 ### Uninstallation
 
