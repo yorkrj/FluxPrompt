@@ -8,6 +8,7 @@ A lightweight Windows application launcher that helps you launch applications qu
 - ⌨️ Keyboard-first navigation
 - 📊 Smart result ranking based on usage frequency
 - 🔄 System tray integration
+- 🚀 Automatic startup with Windows
 
 ## Status
 
@@ -18,18 +19,24 @@ Future development plans include:
 - Smart boilerplate text retrieval and management
 - Custom automation workflows and shortcuts
 
-<!-- It's a little early for this section.
-## Installation
-
-1. Download the latest release from the [Releases](https://github.com/yourusername/FluxPrompt/releases) page
-2. Run the installer
-3. Follow the installation wizard
-
 ### System Requirements
 
-- Windows 10 or later
-- .NET Framework 4.7.2 or later
--->
+- Windows 10 version 1809 (build 17763) or later
+- .NET 9.0 Runtime
+
+## Installation
+
+1. Download the latest release from the [Releases](https://github.com/yorkrj/FluxPrompt/releases) page
+2. Run the installer (FluxPrompt-Setup.exe)
+3. Follow the installation wizard
+4. FluxPrompt will automatically start with Windows
+
+### Uninstallation
+
+1. Open Windows Settings
+2. Go to Apps & Features
+3. Find FluxPrompt in the list
+4. Click Uninstall
 
 ## Usage
 
@@ -55,7 +62,6 @@ Future development plans include:
 2. Open the solution in Visual Studio
 3. Restore NuGet packages
 4. Build the solution
-
 
 ## License
 
